@@ -1,0 +1,318 @@
+#!/usr/bin/env python3
+"""
+A script for various utility functions.
+"""
+import contextlib
+import datetime
+import glob
+import json
+import os
+import shutil
+import subprocess
+import sys
+import textwrap
+import traceback
+
+import click
+
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from base import constants, drill  # noqa: E402
+from base.daily import daily_task  # noqa: E402
+from base.database import Database  # noqa: E402
+from base.utils import date_range, get_today_adjusted, parse_date  # noqa: E402
+
+BACKUP_PREFIX = "/tmp/khaganate-backup-"
+BACKUP_SUFFIX = ".sqlite3"
+
+
+@click.group()
+def cli():
+    pass
+
+
+@cli.command(name="backup")
+def main_backup():
+    """
+    Create a temporary backup of the database.
+    """
+    # The timestamp format MUST sort alphabetically in ascending chronological order,
+    # or else `main_restore` will not work correctly.
+    timestamp = datetime.datetime.now().isoformat(timespec="seconds")
+
+    backup_name = BACKUP_PREFIX + timestamp + BACKUP_SUFFIX
+    shutil.copyfile(constants.DATABASE_PATH, backup_name)
+    print("Backup created at", backup_name)
+    print()
+    print("Restore it with 'kgx restore'.")
+
+
+@cli.command(name="daily")
+@click.option("--force", is_flag=True, default=False)
+def main_daily(*, force):
+    with Database() as db:
+        today = get_today_adjusted()
+        row = db.get("daily_task_singleton")
+        # `datetime.datetime.fromtimestamp` automatically converts the epoch timestamp
+        # to local time.
+        last_updated_at = datetime.datetime.fromtimestamp(row["last_updated_at"])
+        if row is None or last_updated_at.date() < today or force:
+            if row is None:
+                db.insert("daily_task_singleton", {})
+            else:
+                db.update_by_pk("daily_task_singleton", row["id"], {})
+
+            start = (
+                last_updated_at.date() + datetime.timedelta(days=1)
+                if not force and row
+                else today
+            )
+            for date in date_range(start, today):
+                print(f"Running daily task for {date.isoformat()}")
+                daily_task(db, date)
+        else:
+            print("Skipped daily task as it was already run today.")
+            print()
+            print(
+                "To force it to run, re-run with --force, but note that this may "
+                + "result in duplicated data."
+            )
+
+
+@cli.command(name="qedit")
+@click.argument("id", type=int)
+def main_qedit(id):
+    """
+    Edit a question in the quiz database.
+    """
+    with Database(transaction=False) as db:
+        question = db.get("quiz_questions", where="id = :id", values={"id": id})
+        if question is None:
+            error(f"no question with ID {id} found in database.")
+
+        path = "/tmp/drillq"
+        with open(path, "w", encoding="utf8") as f:
+            f.write(f"[1] {question['text']}\n")
+
+            answers = json.loads(question["answer"])
+            if (
+                question["type"] == "ordered-list"
+                or question["type"] == "unordered-list"
+            ):
+                for answer_group in answers:
+                    f.write(" / ".join(answer_group))
+                    f.write("\n")
+            else:
+                f.write(" / ".join(answers))
+                f.write("\n")
+
+            if question["choices"]:
+                choices = json.loads(question["choices"])
+                f.write("- choices: " + " / ".join(choices))
+
+        subprocess.run([constants.EDITOR, path])
+
+        with open(path, "r", encoding="utf8") as f:
+            lines = f.readlines()
+            edited_question = drill.parse_question("", lines, 1)
+
+        with db.transaction():
+            db.update_by_pk(
+                "quiz_questions",
+                id,
+                {
+                    "text": edited_question["text"],
+                    "answer": json.dumps(edited_question["answer"], ensure_ascii=False),
+                    "choices": json.dumps(
+                        edited_question["choices"], ensure_ascii=False
+                    )
+                    if "choices" in edited_question
+                    else "",
+                    "type": edited_question["type"],
+                },
+            )
+
+
+@cli.command(name="qnew")
+@click.argument("quiz")
+def main_qnew(quiz):
+    """
+    Add a question to the quiz database.
+    """
+    with Database(transaction=False) as db:
+        quiz_row = db.get("quizzes", where="name = :name", values={"name": quiz})
+        if quiz_row is None:
+            error(f"quiz {quiz!r} does not exist.")
+
+        path = "/tmp/drillq"
+        with contextlib.suppress(FileNotFoundError):
+            os.remove(path)
+
+        subprocess.run([constants.EDITOR, path])
+
+        with open(path, "r", encoding="utf8") as f:
+            lines = f.readlines()
+            question = drill.parse_question(quiz, lines, 1)
+
+        with db.transaction():
+            db.insert(
+                "quiz_questions",
+                {
+                    "quiz": quiz_row["id"],
+                    "text": question["text"],
+                    "answer": json.dumps(question["answer"], ensure_ascii=False),
+                    "choices": json.dumps(question["choices"], ensure_ascii=False)
+                    if "choices" in question
+                    else "",
+                    "type": question["type"],
+                },
+            )
+
+
+@cli.command(name="journal")
+@click.option("--date")
+def main_journal(*, date=None):
+    """
+    Create or update a journal entry for today.
+    """
+    if date:
+        date = parse_date(date)
+    else:
+        date = get_today_adjusted()
+
+    # Don't begin a transaction automatically as this locks the database and causes
+    # errors if the user tries to use the web interface while writing their journal
+    # entry. Instead, begin the transaction immediately before the first write. (#519)
+    with Database(transaction=False) as db:
+        path = f"/tmp/journal-{date.isoformat()}.md"
+        with contextlib.suppress(FileNotFoundError):
+            os.remove(path)
+
+        current_entry = db.get(
+            "journal_entries", where="date = :date", values={"date": date}
+        )
+        last_entry = db.get(
+            "journal_entries",
+            where="date < :date",
+            values={"date": current_entry["date"] if current_entry else date},
+            order_by="date",
+            descending=True,
+        )
+        if current_entry is not None or last_entry is not None:
+            with open(path, "w", encoding="utf-8") as f:
+                if current_entry is not None:
+                    f.write(current_entry["text"])
+                    f.write("\n")
+
+                if last_entry is not None:
+                    f.write("\n")
+                    f.write("\n")
+                    f.write("# Lines starting with '#' are ignored.\n")
+                    f.write("#\n")
+                    f.write(f"# Last entry ({last_entry['date'].isoformat()}):\n")
+                    f.write("#\n")
+                    f.write(
+                        textwrap.indent(
+                            last_entry["text"],
+                            "#   ",
+                            # Add prefix to all lines, even empty ones.
+                            lambda line: True,
+                        )
+                    )
+                    f.write("\n")
+
+        subprocess.run([constants.EDITOR, path])
+
+        try:
+            lines = []
+            with open(path, "r", encoding="utf-8") as f:
+                for line in f:
+                    if line.startswith("#"):
+                        continue
+                    else:
+                        lines.append(line)
+
+            text = "".join(lines).strip()
+        except FileNotFoundError:
+            text = ""
+
+        if not text:
+            error("journal entry is empty. Operation aborted.")
+
+        if current_entry and text == current_entry["text"]:
+            error("journal entry is unchanged. Operation aborted.")
+
+        try:
+            with db.transaction():
+                if current_entry is not None:
+                    db.update_by_pk(
+                        "journal_entries", current_entry["id"], {"text": text}
+                    )
+                    print(f"Updated journal entry for {date.isoformat()}.")
+                else:
+                    db.insert("journal_entries", {"date": date, "text": text})
+                    print(f"Created journal entry for {date.isoformat()}.")
+        except Exception:
+            traceback.print_exc()
+            print()
+            print(
+                "Unable to save journal entry to database. Contents temporarily "
+                + f"saved to {path}."
+            )
+            print("DO NOT re-run the command as it will delete the temporary back-up.")
+
+
+@cli.command(name="restore")
+def main_restore():
+    """
+    Restore the latest backup of the database.
+    """
+    candidates = glob.glob(BACKUP_PREFIX + "*" + BACKUP_SUFFIX)
+    if not candidates:
+        error("no backups found.")
+
+    print(f"Found {len(candidates)} backup(s)")
+    print()
+
+    candidates.sort()
+    latest_candidate = candidates[-1]
+
+    latest_candidate_timestamp = latest_candidate[
+        len(BACKUP_PREFIX) : -len(BACKUP_SUFFIX)
+    ]
+    latest_candidate_time = datetime.datetime.fromisoformat(latest_candidate_timestamp)
+
+    now = datetime.datetime.now()
+    diff = now - latest_candidate_time
+    diff_in_minutes = int(diff.seconds / 60)
+    if not click.confirm(f"Restore backup from {diff_in_minutes} minute(s) ago?"):
+        print("Operation aborted.")
+        sys.exit(2)
+    else:
+        shutil.move(latest_candidate, constants.DATABASE_PATH)
+        print("Backup restored.")
+
+
+@cli.command(name="review")
+def main_review():
+    """
+    Open up the git diff review page in Khaganate for the current directory.
+    """
+    # Use `git rev-parse` to get the root of the git directory.
+    result = subprocess.run(
+        ["git", "rev-parse", "--show-toplevel"], stdout=subprocess.PIPE, encoding="utf8"
+    )
+    if result.returncode != 0:
+        sys.exit(result.returncode)
+    top_level = result.stdout
+
+    # Open up http://kg/review/path/to/repo in Google Chrome.
+    subprocess.run([constants.BROWSER, "kg/review" + top_level], capture_output=True)
+
+
+def error(message):
+    print(f"Error: {message}", file=sys.stderr)
+    sys.exit(2)
+
+
+if __name__ == "__main__":
+    cli()

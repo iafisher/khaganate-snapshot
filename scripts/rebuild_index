@@ -1,0 +1,22 @@
+#!/usr/bin/env python3
+import os
+import sys
+
+import click
+
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from base import search  # noqa: E402
+
+
+@click.command()
+@click.option("--quiet", is_flag=True, default=False)
+def main(*, quiet):
+    """
+    Rebuild Khaganate's search index.
+    """
+    count = search.rebuild_index(verbose=not quiet)
+    print(f"Indexed {count} document(s).")
+
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,9 @@
+#!/bin/bash
+
+echo "You need to edit scripts/kgdb to set the location of the database."
+exit 1
+
+subcommand=$1
+shift
+
+isqlite "$subcommand" /path/to/db.sqlite3 "$@"

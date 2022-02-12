@@ -1,0 +1,12 @@
+#!/bin/bash
+
+set -e
+
+if [[ -z "$1" ]]; then
+  cd /home/iafisher/dev/khaganate
+  source .venv/bin/activate
+  ./scripts/kgx daily
+  ./manage.py runserver
+else
+  echo "$0 accepts no command-line arguments."
+fi

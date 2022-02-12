@@ -1,0 +1,12 @@
+{
+  "manifest_version": 2,
+  "name": "GoLinks",
+  "version": "1.0",
+  "description": "Redirects go links and other short links",
+  "background":{
+    "scripts": [
+      "redirect.js"
+    ]
+  },
+  "permissions": ["webRequest", "webRequestBlocking", "<all_urls>"]
+}

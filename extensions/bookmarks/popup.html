@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+
+    <link href="public/select2.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="popup.css">
+
+    <script src="public/jquery-3.5.1.min.js"></script>
+    <script src="public/select2.min.js"></script>
+    <script src="public/browser-polyfill.min.js"></script>
+  </head>
+
+  <body>
+    <div id="loader">
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+    </div>
+
+    <p id="error">
+      Error: <span id="error-message"></span>
+    </p>
+
+    <table>
+      <colgroup>
+        <col span="1" style="width: 100px;">
+        <col span="2" style="width: 200px;">
+      </colgroup>
+
+      <tbody>
+        <tr>
+          <td>title:</td>
+          <td><input type="text" name="title" autocomplete="off"></td>
+        </tr>
+        <tr>
+          <td>url:</td>
+          <td><input type="url" name="url"></td>
+        </tr>
+        <tr>
+          <td>author:</td>
+          <td><input type="text" name="author" autocomplete="off"></td>
+        </tr>
+        <tr>
+          <td>year:</td>
+          <td><input type="number" name="year"></td>
+        </tr>
+        <tr>
+          <td>keywords:</td>
+          <td><input type="text" name="keywords" autocomplete="off"></td>
+        </tr>
+        <tr>
+          <td>topics:</td>
+          <td>
+            <select name="topics" multiple="multiple"></select>
+          </td>
+        </tr>
+        <tr>
+          <td>annotation:</td>
+          <td>
+            <textarea name="annotation"></textarea>
+          </td>
+        </tr>
+        <tr>
+          <td>quality:</td>
+          <td>
+            <select name="quality">
+              <option value="1">average</option>
+              <option value="2">good</option>
+              <option value="3">exceptional</option>
+            </select>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p id="create-form" class="text-center">
+      <button id="button-create">create</button>
+    </p>
+
+    <p id="update-form" class="text-center">
+      <button id="button-update">update</button>
+      <button id="button-delete">delete</button>
+    </p>
+
+    <ul id="topics-list"></ul>
+  </body>
+
+  <script src="popup.js"></script>
+</html>

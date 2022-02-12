@@ -1,0 +1,13 @@
+click
+django
+django-autocomplete-light
+django-stubs
+gunicorn
+isqlite
+markdown
+mdx-truly-sane-lists
+mypy
+requests
+tabulate
+types-requests
+whoosh

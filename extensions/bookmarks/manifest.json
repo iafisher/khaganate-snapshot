@@ -1,0 +1,15 @@
+{
+  "manifest_version": 2,
+  "name": "KhaganateBookmarks",
+  "version": "1.0",
+  "description": "Sends bookmarks to Khaganate.",
+  "browser_action": {
+    "default_icon": "icon.png",
+    "default_title": "KhaganateBookmarks",
+    "default_popup": "popup.html"
+  },
+  "permissions": [
+    "activeTab",
+    "bookmarks"
+  ]
+}

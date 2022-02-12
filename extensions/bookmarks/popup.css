@@ -1,0 +1,121 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Ubuntu", "Helvetica Neue", sans-serif;
+  color: #111;
+  overflow-x: hidden;
+  width: 300px;
+  /* Make it tall enough to fit the select2 autocomplete menu. */
+  height: 450px;
+}
+
+table {
+  table-layout: fixed;
+  width: 100%;
+}
+
+.text-center {
+  text-align: center;
+}
+
+button {
+  padding: 0.5em 1em;
+  border: none rgba(0, 0, 0, 0);
+  text-decoration: none;
+  border-radius: 2px;
+  cursor: pointer;
+}
+
+#button-create, #button-update {
+  background-color: #0078e7;
+  color: white;
+}
+
+#button-delete {
+  background-color: #ff4136;
+  color: white;
+}
+
+#button-add-topic {
+  border: 1px solid #ccc;
+}
+
+input[type='text'], input[type='url'], input[type='number'], .regular-select {
+  width: 100%;
+  line-height: 1.5;
+  padding: 0.3em 0.6em;
+  border: 1px solid #ccc;
+  border-radius: .2em;
+}
+
+input[readonly] {
+  background-color: whitesmoke;
+  cursor: default;
+}
+
+textarea {
+  height: 100px;
+  font-family: "Ubuntu", "Helvetica Neue", sans-serif;
+}
+
+#error {
+  text-align: center;
+  background-color: #c51244;
+  color: white;
+  padding: 5px;
+  display: none;
+}
+
+#create-form {
+  display: none;
+}
+
+#update-form {
+  display: none;
+}
+
+/* Courtesy of https://loading.io/css/ */
+#loader {
+  display: none;
+  margin: 40px auto;
+  position: relative;
+  width: 80px;
+  height: 80px;
+}
+
+#loader div {
+  box-sizing: border-box;
+  display: block;
+  position: absolute;
+  width: 64px;
+  height: 64px;
+  margin: 8px;
+  border: 8px solid #fff;
+  border-radius: 50%;
+  animation: lds-ring 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+  /* border-color: rgb(213, 222, 217) transparent transparent transparent; */
+  border-color: #333 transparent transparent transparent;
+}
+
+#loader div:nth-child(1) {
+  animation-delay: -0.45s;
+}
+
+#loader div:nth-child(2) {
+  animation-delay: -0.3s;
+}
+
+#loader div:nth-child(3) {
+  animation-delay: -0.15s;
+}
+
+@keyframes lds-ring {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}

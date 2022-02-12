@@ -1,0 +1,5 @@
+# Paths to ignore for ag.
+/server/static/public
+/server/static/bundle
+*.svg
+/package-lock.json

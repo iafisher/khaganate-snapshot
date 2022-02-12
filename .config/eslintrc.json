@@ -1,0 +1,20 @@
+{
+  "parserOptions": {
+    "ecmaVersion": 2018,
+    "sourceType": "module"
+  },
+  "extends": [
+    "eslint:recommended",
+    "plugin:vue/recommended",
+    "prettier"
+  ],
+  "rules": {
+    "no-constant-condition": "off",
+    "vue/max-attributes-per-line": "off",
+    "vue/html-closing-bracket-newline": "off",
+    "vue/html-indent": "off",
+    "vue/html-self-closing": "off",
+    "vue/no-v-html": "off",
+    "vue/singleline-html-element-content-newline": "off"
+  }
+}

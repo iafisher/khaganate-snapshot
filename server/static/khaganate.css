@@ -1,0 +1,255 @@
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  margin: 0px;
+  padding: 0px;
+}
+
+.app {
+  font-family: "Helvetica Neue", sans-serif;
+  color: #111;
+}
+
+.app h1 {
+  font-size: 2rem;
+}
+
+.app h2 {
+  font-size: 1.7rem;
+}
+
+.app h3 {
+  font-size: 1.4rem;
+}
+
+a {
+  /* From Picnic CSS */
+  color: #0074d9;
+  text-decoration: none;
+}
+
+input[type='text'], input[type='date'], input[type='number'], input[type='time'] {
+  /* From Picnic CSS */
+  line-height: 1.5;
+  height: 2.1em;
+  padding: 0.3em 0.6em;
+  border: 1px solid #ccc;
+  border-radius: .2em;
+}
+
+textarea {
+  padding: 0.3em 0.6em;
+}
+
+select {
+  /* From Picnic CSS */
+  background: #fff url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyIiBoZWlnaHQ9IjMiPjxwYXRoIGQ9Im0gMCwxIDEsMiAxLC0yIHoiLz48L3N2Zz4=) no-repeat scroll 95% center/10px 15px;
+  background-position: calc(100% - 15px) center;
+  border: 1px solid #ccc;
+  border-radius: .2em;
+  cursor: pointer;
+  height: 2.2em;
+  box-sizing: border-box;
+  padding: .3em .45em;
+  -moz-appearance: none;
+  appearance: none;
+  /* To account for the dropdown arrow. */
+  padding-right: 30px;
+}
+
+abbr[title].person {
+  border-bottom: 1px dotted;
+  text-decoration: none;
+}
+
+.page,
+.page-wide,
+.page-wider,
+.page-very-wide,
+.page-full {
+  padding: 2rem;
+  padding-top: 0;
+  line-height: 1.5;
+  /* Center the content horizontally. */
+  margin: auto;
+}
+
+.page {
+  max-width: 50rem;
+}
+
+.page-wide {
+  max-width: 62rem;
+}
+
+.page-wider {
+  max-width: 80rem;
+}
+
+.page-very-wide {
+  width: 90%;
+}
+
+.page-full {
+  width: 100%;
+}
+
+.align-center {
+  margin: 0 auto;
+}
+
+.main-point {
+  font-size: 24px;
+  text-align: center;
+}
+
+.green {
+  color: green;
+}
+
+.red {
+  color: red;
+}
+
+.bold {
+  font-weight: bold;
+}
+
+.italic {
+  font-style: italic;
+}
+
+.block {
+  display: block;
+}
+
+.font-sm {
+  font-size: 13px;
+}
+
+.spaced-inline + .spaced-inline {
+  margin-left: 0.5rem;
+}
+
+.card {
+  padding: 10px;
+}
+
+.card + .card {
+  margin-top: 1rem;
+}
+
+.cursor {
+  cursor: pointer;
+}
+
+.help {
+  cursor: help;
+  border-bottom: 1px dotted;
+}
+
+#popups {
+  position: fixed;
+  width: 100%;
+  bottom: 25px;
+  z-index: 1000;
+  /* Pass on mouse events to elements below. (#546) */
+  pointer-events: none;
+}
+
+/* Styling for the pop-ups created by frontend/popup.js */
+.popup-message {
+  width: 400px;
+  padding: 1rem;
+  text-align: center;
+  margin: 0 auto;
+  background-color: white;
+  border: 1px solid #ccc;
+  transition: opacity 1s;
+  /* Turn mouse events back on, since #popups parent disabled them. */
+  pointer-events: initial;
+}
+
+.popup-message.popup-danger {
+  color: #721c24;
+  background-color: #f8d7da;
+}
+
+.popup-message + .popup-message {
+  margin-top: 1rem;
+}
+
+
+/* Borrowed from https://purecss.io/buttons/ */
+.kg-btn {
+  padding: 0.5em 1em;
+  border: none rgba(0, 0, 0, 0);
+  text-decoration: none;
+  border-radius: 2px;
+  cursor: pointer;
+}
+
+.kg-btn-primary {
+  background-color: #0078e7;
+  color: white;
+}
+
+.kg-btn-secondary {
+  background-color: #6c757d;
+  color: white;
+}
+
+.kg-btn-red {
+  background: rgb(202, 60, 60);
+  color: white;
+}
+
+.kg-btn-disabled {
+  cursor: default;
+  background: #aaa;
+  color: white;
+  opacity: 0.5;
+}
+
+.pointer {
+  cursor: pointer;
+}
+
+.color-green {
+  color: green;
+}
+
+.color-darkblue {
+  color: darkblue;
+}
+
+/* Copied from https://yuku.takahashi.coffee/textcomplete/#style */
+.textcomplete-dropdown {
+  border: 1px solid #ddd;
+  background-color: white;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.textcomplete-dropdown li {
+  margin: 0;
+}
+
+.textcomplete-footer,
+.textcomplete-item {
+  border-top: 1px solid #ddd;
+}
+
+.textcomplete-item {
+  padding: 2px 5px;
+  cursor: pointer;
+}
+
+.textcomplete-item:hover,
+.textcomplete-item.active {
+  background-color: rgb(110, 183, 219);
+}
