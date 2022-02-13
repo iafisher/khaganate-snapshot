@@ -11,7 +11,7 @@ I run Khaganate with:
 - Python 3.8
 - npm 7.5
 
-Other configurations are untested.
+Other configurations are untested; at least one user was able to run it on Windows, and I expect it would work with most Linux distributions.
 
 ## Installation
 First, you will need to clone the repository:
@@ -26,7 +26,7 @@ Next, create a virtual environment and install Python dependencies:
 ```shell
 virtualenv --python=python3 .venv
 source .venv/bin/activate
-pip3 install -r requirements.txt
+pip install -r requirements.txt
 ```
 
 Install JavaScript dependencies and build the frontend:
@@ -36,17 +36,19 @@ npm install
 npm run build
 ```
 
-Run Django database migrations:
+Run Django database migrations (make sure your virtual environment is still activated):
 
 ```
-./manage.py migrate
+python manage.py migrate
 ```
 
 Now, you are ready to run the server:
 
 ```
-./manage.py runserver 8000
+python manage.py runserver 8000
 ```
+
+Once the server is running, visit http://localhost:8000 in your browser to view the Khaganate interface.
 
 Sections below contain optional installation steps.
 
