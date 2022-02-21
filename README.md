@@ -1,4 +1,4 @@
-This repository holds a snapshot of Khaganate, a suite of productivity tools that I wrote for my own use.
+This repository holds a snapshot of Khaganate, a suite of productivity tools that I wrote for my own use. A long-form description of Khaganate, with many screenshots, is available as [a blog post](https://iafisher.com/blog/2022/02/khaganate).
 
 The canonical Khaganate source code is kept in a private repository as it contains various secrets and non-public information. This repository is a snapshot as of February 2022, with private information scrubbed and certain hard-coded parameters changed. As it required a good deal of effort to scrub the source code, I do not intend to keep this repository up to date with the canonical repository.
 
